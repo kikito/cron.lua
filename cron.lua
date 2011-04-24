@@ -36,12 +36,11 @@ end
 local function updatePeriodicEntry(self, dt)
   self.running = self.running + dt
 
-  if self.running >= self.time then
+  while self.running >= self.time do
     self.callback(unpack(self.args))
-    self.running=0
+    self.running = self.running - self.time
   end
 end
-
 
 local cron = {}
 

@@ -70,16 +70,23 @@ context( 'cron', function()
     end)
 
     test( 'Should execute periodical actions periodically', function()
-      cron.every(2, count)
+      cron.every(3, count)
       cron.update(1)
       assert_equal(counter, 0)
-      cron.update(1)
+      cron.update(2)
       assert_equal(counter, 1)
       cron.update(2)
-      assert_equal(counter, 2)
+      assert_equal(counter, 1)
       cron.update(1)
       assert_equal(counter, 2)
     end)
+
+    test( 'Should execute the same action multiple times on a single update if appropiate', function()
+      cron.every(1, count)
+      cron.update(2)
+      assert_equal(counter, 2)
+    end)
+
   end)
 
 
