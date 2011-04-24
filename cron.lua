@@ -48,6 +48,10 @@ function cron.reset()
   entries = {}
 end
 
+function cron.cancel(id)
+  entries[id] = nil
+end
+
 function cron.after(time, callback, ...)
   checkTimeAndCallback(time, callback)
   return newEntry(time, callback, updateTimedEntry, ...)
