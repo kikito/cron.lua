@@ -25,11 +25,11 @@ local function newEntry(time, callback, update, ...)
   return entry
 end
 
-local function updateTimedEntry(self, dt)
+local function updateTimedEntry(self, dt) -- returns true if expired
   self.running = self.running + dt
   if self.running >= self.time then
     self.callback(unpack(self.args))
-    self.expired = true
+    return true
   end
 end
 
@@ -68,11 +68,10 @@ function cron.update(dt)
   local expired = {}
 
   for _, entry in pairs(entries) do
-    entry:update(dt, runningTime)
-    if entry.expired then expired[entry] = entry end
+    if entry:update(dt, runningTime) then table.insert(expired,entry) end
   end
 
-  for _, entry in pairs(expired) do entries[entry] = nil end
+  for i=1, #expired do entries[expired[i]] = nil end
 end
 
 return cron
