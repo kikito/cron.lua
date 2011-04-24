@@ -22,6 +22,7 @@ local function newEntry(time, callback, update, ...)
     update = update
   }
   entries[entry] = entry
+  return entry
 end
 
 local function updateTimedEntry(self, dt)
@@ -29,6 +30,15 @@ local function updateTimedEntry(self, dt)
   if self.running >= self.time then
     self.callback(unpack(self.args))
     self.expired = true
+  end
+end
+
+local function updatePeriodicEntry(self, dt)
+  self.running = self.running + dt
+
+  if self.running >= self.time then
+    self.callback(unpack(self.args))
+    self.running=0
   end
 end
 
@@ -41,13 +51,12 @@ end
 
 function cron.after(time, callback, ...)
   checkTimeAndCallback(time, callback)
-
   return newEntry(time, callback, updateTimedEntry, ...)
 end
 
 function cron.every(time, callback, ...)
   checkTimeAndCallback(time, callback)
-
+  return newEntry(time, callback, updatePeriodicEntry, ...)
 end
 
 function cron.update(dt)

@@ -68,6 +68,18 @@ context( 'cron', function()
       assert_error(function() cron.every(-2, count) end)
       assert_not_error(function() cron.every(2, count) end)
     end)
+
+    test( 'Should execute periodical actions periodically', function()
+      cron.every(2, count)
+      cron.update(1)
+      assert_equal(counter, 0)
+      cron.update(1)
+      assert_equal(counter, 1)
+      cron.update(2)
+      assert_equal(counter, 2)
+      cron.update(1)
+      assert_equal(counter, 2)
+    end)
   end)
 
 
