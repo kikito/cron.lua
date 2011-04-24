@@ -6,28 +6,32 @@
 -----------------------------------------------------------------------------------------------------------------------
 
 
-local entries = {}
-
-local TimedEntry = {}
-
-function TimedEntry:new(time, callback, ...)
-  return setmetatable( {
-      time = time,
-      callback = callback,
-      args = {...},
-      running = 0
-    },
-    { __index = TimedEntry }
-  )
+local function checkTimeAndCallback(time, callback)
+  assert(type(time) == "number" and time > 0, "time must be a positive number")
+  assert(type(callback) == "function", "callback must be a function")
 end
 
-function TimedEntry:update(dt)
+local entries = {}
+
+local function newEntry(time, callback, update, ...)
+  local entry = {
+    time = time,
+    callback = callback,
+    args = {...},
+    running = 0,
+    update = update
+  }
+  entries[entry] = entry
+end
+
+local function updateTimedEntry(self, dt)
   self.running = self.running + dt
   if self.running >= self.time then
     self.callback(unpack(self.args))
     self.expired = true
   end
 end
+
 
 local cron = {}
 
@@ -36,11 +40,14 @@ function cron.reset()
 end
 
 function cron.after(time, callback, ...)
-  assert(type(time) == "number" and time > 0, "time must be a positive number")
-  assert(type(callback) == "function", "callback must be a function")
+  checkTimeAndCallback(time, callback)
 
-  local entry = TimedEntry:new(time, callback, ...)
-  entries[entry] = entry
+  return newEntry(time, callback, updateTimedEntry, ...)
+end
+
+function cron.every(time, callback, ...)
+  checkTimeAndCallback(time, callback)
+
 end
 
 function cron.update(dt)

@@ -4,8 +4,8 @@ h1. cron.lua
 
 h1. Examples of use
 
-* @cron.after(time, f)@ will execute f after the given amount of time units.
-* @cron.every(time, f)@ will repeat the same action periodically.
+* @cron.after(time, callback)@ will execute callback after the given amount of time units.
+* @cron.every(time, callback)@ will repeat the same action periodically.
 * @cron.cancel(id)@ will stop a timed event from happening. @id@ is returned by @cron.after@ and @cron.every@ respectively. It will stop a timed event from happening, or stop a periodic action.
 * @cron.reset()@ removes all timed and periodic actions, and resets the time passed back to 0.
 * @cron.update(dt)@ is needed to be executed on the main program loop. @dt@ is the amount of time that has passed since the last iteration. When @cron.update@ is executed, cron will check the list of pending actions and execute them if needed.
