@@ -10,6 +10,31 @@ h1. Examples of use
 * @cron.reset()@ removes all timed and periodic actions, and resets the time passed back to 0.
 * @cron.update(dt)@ is needed to be executed on the main program loop. @dt@ is the amount of time that has passed since the last iteration. When @cron.update@ is executed, cron will check the list of pending actions and execute them if needed.
 
+<pre>
+local cron = require 'cron'
+
+local function printMessage()
+  print('Hello')
+end
+
+-- the following calls are equivalent:
+cron.after(5, printMessage)
+cron.after(5, print, 'Hello')
+
+cron.update(5) -- will print 'Hello' twice
+
+-- this will print the message periodically:
+local id = cron.every(10, printMessage)
+
+cron.update(5) -- nothing
+cron.update(4) -- nothing
+cron.update(12) -- prints 'Hello' twice
+
+cron.cancel(id) -- stops the execution the element defined by id. Works with periodical or one-time actions.
+
+cron.reset() -- stops all the current actions, both timed ones and periodical ones.
+</pre>
+
 
 h1. Gotchas / Warnings
 
