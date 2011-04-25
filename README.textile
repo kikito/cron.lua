@@ -6,7 +6,7 @@ h1. Examples of use
 
 * @cron.after(time, callback)@ will execute callback after the given amount of time units. Returns an identifier (@id@)
 * @cron.every(time, callback)@ will repeat the same action periodically. Returns an identifier (@id@)
-* @cron.cancel(id)@ will stop a timed event from happening. It will stop a timed event from happening, or stop a periodic action.
+* @cron.cancel(id)@ will stop a timed action from happening, and will interrupt the periodical execution of a periodic action.
 * @cron.reset()@ removes all timed and periodic actions, and resets the time passed back to 0.
 * @cron.update(dt)@ is needed to be executed on the main program loop. @dt@ is the amount of time that has passed since the last iteration. When @cron.update@ is executed, cron will check the list of pending actions and execute them if needed.
 
