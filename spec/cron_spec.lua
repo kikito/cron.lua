@@ -7,6 +7,7 @@ context( 'cron', function()
     amount = amount or 1
     counter = counter + amount
   end
+  local countable = setmetatable({}, {__call = count})
 
   before(function()
     counter = 0
@@ -44,11 +45,13 @@ context( 'cron', function()
   end)
 
   context( 'after', function()
-    test( 'Should throw error if time is not a positive number, or callback is not function', function()
+    test( 'Should throw error if time is not a positive number, or callback is not callable', function()
       assert_error(function() cron.after('error', count) end)
       assert_error(function() cron.after(2, 'error') end)
       assert_error(function() cron.after(-2, count) end)
+      assert_error(function() cron.after(2, {}) end)
       assert_not_error(function() cron.after(2, count) end)
+      assert_not_error(function() cron.after(2, countable) end)
     end)
     
     test( 'Should execute timed actions are executed only once, at the right time', function()
@@ -76,7 +79,9 @@ context( 'cron', function()
       assert_error(function() cron.every('error', count) end)
       assert_error(function() cron.every(2, 'error') end)
       assert_error(function() cron.every(-2, count) end)
+      assert_error(function() cron.every(-2, {}) end)
       assert_not_error(function() cron.every(2, count) end)
+      assert_not_error(function() cron.every(2, countable) end)
     end)
 
     test( 'Should execute periodical actions periodically', function()

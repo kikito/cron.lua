@@ -6,9 +6,19 @@
 -----------------------------------------------------------------------------------------------------------------------
 
 
+local function isCallable(callback)
+  local tc = type(callback)
+  if tc == 'function' then return true end
+  if tc == 'table' then
+    local mt = getmetatable(callback)
+    return type(mt) == 'table' and type(mt.__call) == 'function'
+  end
+  return false
+end
+
 local function checkTimeAndCallback(time, callback)
   assert(type(time) == "number" and time > 0, "time must be a positive number")
-  assert(type(callback) == "function", "callback must be a function")
+  assert(isCallable(callback), "callback must be a function")
 end
 
 local entries = {}
