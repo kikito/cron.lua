@@ -21,7 +21,7 @@ local function checkTimeAndCallback(time, callback)
   assert(isCallable(callback), "callback must be a function")
 end
 
-local entries = {}
+local entries = setmetatable({}, {__mode = "k"})
 
 local function newEntry(time, callback, update, ...)
   local entry = {
