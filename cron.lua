@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------------------------------------
--- cron.lua - v1.0 (2011-04)
+-- cron.lua - v1.1 (2011-04)
 -- Enrique García Cota - enrique.garcia.cota [AT] gmail [DOT] com
 -- time-related functions for Lua.
 -- inspired by Javascript's setTimeout and setInterval
