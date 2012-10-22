@@ -15,7 +15,7 @@ context( 'cron', function()
   end)
 
   context('update', function()
-    test( 'Should throw an error if dt is not a positive number', function()
+    test( 'Should throw an error if dt is a negative number', function()
       assert_error(function() cron.update() end)
       assert_error(function() cron.update(-1) end)
       assert_not_error(function() cron.update(1) end)
