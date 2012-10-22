@@ -25,7 +25,7 @@ local function checkTimeAndCallback(time, callback)
   assert(isCallable(callback), "callback must be a function")
 end
 
-local entries = setmetatable({}, {__mode = "k"})
+local entries = {}
 
 local function newEntry(time, callback, update, ...)
   local entry = {
@@ -77,15 +77,11 @@ function cron.every(time, callback, ...)
 end
 
 function cron.update(dt)
-  assert(type(dt) == "number" and dt > 0, "dt must be a positive number")
+  assert(type(dt) == "number" and dt >= 0, "dt must be a non-negative number")
 
-  local expired = {}
-
-  for _, entry in pairs(entries) do
-    if entry:update(dt, runningTime) then table.insert(expired,entry) end
+  for id, entry in pairs(entries) do
+    if entry:update(dt) then entry[id] = nil end
   end
-
-  for i=1, #expired do entries[expired[i]] = nil end
 end
 
 return cron
