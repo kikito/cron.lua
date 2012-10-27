@@ -10,6 +10,11 @@
 -- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+-- Private functions
+
+local entries = {}
+
 local function isCallable(callback)
   local tc = type(callback)
   if tc == 'function' then return true end
@@ -24,8 +29,6 @@ local function checkTimeAndCallback(time, callback)
   assert(type(time) == "number" and time > 0, "time must be a positive number")
   assert(isCallable(callback), "callback must be a function")
 end
-
-local entries = {}
 
 local function newEntry(time, callback, update, ...)
   local entry = {
@@ -55,6 +58,8 @@ local function updatePeriodicEntry(self, dt)
     self.running = self.running - self.time
   end
 end
+
+-- Public functions
 
 local cron = {}
 
