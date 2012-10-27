@@ -79,8 +79,12 @@ end
 function cron.update(dt)
   assert(type(dt) == "number" and dt >= 0, "dt must be a non-negative number")
 
+  local expired = {}
   for id, entry in pairs(entries) do
-    if entry:update(dt) then entry[id] = nil end
+    if entry:update(dt) then expired[id] = true end
+  end
+  for id,_ in pairs(expired) do
+    entries[id] = nil
   end
 end
 
