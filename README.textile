@@ -55,11 +55,10 @@ Also, make sure to read the license file; the text of that license file must app
 
 h1. Specs
 
-This project uses "telescope":https://github.com/norman/telescope for its specs. If you want to run the specs, you will have to install telescope first. Then just enter the spec folder and execute run.lua:
+This project uses "telescope":https://github.com/norman/telescope for its specs. If you want to run the specs, you will have to install telescope first. Then run:
 
 <pre>
-cd path/to/cron.lua/specs
-lua run.lua
+tsc spec/*
 </pre>
 
 
