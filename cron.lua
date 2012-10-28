@@ -13,7 +13,8 @@
 
 -- Private functions
 
-local entries = {}
+local entries, tagGroups -- initialized in cron.reset
+local cron = {}
 
 local function isCallable(callback)
   local tc = type(callback)
@@ -46,7 +47,7 @@ local function updateTimedEntry(self, dt) -- returns true if expired
   self.running = self.running + dt
   if self.running >= self.time then
     self.callback(unpack(self.args))
-    entries[self] = nil
+    cron.cancel(self)
   end
 end
 
@@ -59,16 +60,62 @@ local function updatePeriodicEntry(self, dt)
   end
 end
 
--- Public functions
-
-local cron = {}
-
-function cron.reset()
-  entries = {}
+local function addTags(...)
+  local tags = {...}
+  local len  = #tags
+  for i=1, len do
+    local tag = tags[i]
+    taggedEntries[tag] = taggedEntries[tag] or setmetatable({}, {__mode = 'k'})
+  end
+  return tags, len
 end
+
+local function registerEntry(scope, entry)
+  for i=1, scope.len do
+    taggedEntries[scope.tags[i]][entry] = entry
+  end
+  entry.tags = scope.tags
+  return entry
+end
+
+function tagged_update(scope, dt)
+  for i=1, scope.len do
+    for _,entry in pairs(taggedEntries[scope.tags[i]]) do
+      entry:update(dt)
+    end
+  end
+end
+
+function tagged_cancel(scope)
+  for i=1, scope.len do
+    local tag = scope.tags[i]
+    for _,entry in pairs(taggedEntries[tag]) do
+      cron.cancel(entry)
+    end
+    taggedEntries[tag] = nil
+  end
+end
+
+local function newTaggedScope(tags, len)
+  local scope = { tags = tags, len = len }
+
+  scope.after  = function(...) return registerEntry(scope, cron.after(...)) end
+  scope.every  = function(...) return registerEntry(scope, cron.every(...)) end
+  scope.update = function(dt) tagged_update(scope, dt) end
+  scope.cancel = function(dt) tagged_cancel(scope) end
+
+  return scope
+end
+
+-- Public functions
 
 function cron.cancel(id)
   entries[id] = nil
+  if id.tags then
+    for i=1, #id.tags do
+      taggedEntries[id.tags[i]][id] = nil
+    end
+  end
 end
 
 function cron.after(time, callback, ...)
@@ -86,6 +133,20 @@ function cron.update(dt)
 
   for _, entry in pairs(entries) do entry:update(dt) end
 end
+
+function cron.tagged(...)
+  return newTaggedScope(addTags(...))
+end
+
+function cron.reset()
+  entries = {}
+  taggedEntries = setmetatable({}, {__mode='k'})
+end
+
+-- tagged functions
+
+
+cron.reset()
 
 return cron
 

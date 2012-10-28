@@ -128,4 +128,31 @@ describe( 'cron', function()
       assert_equal(counter, 1)
     end)
   end)
+
+  describe('.tagged', function()
+    before(function()
+      cron.tagged('hello').every(5, count) -- A
+      cron.tagged('hello').after(2, count) -- B
+      cron.every(1, count)                 -- C
+    end)
+
+    it('filters update', function()
+      cron.tagged('hello').update(5)
+      assert_equal(counter, 2)  -- A + B, but not C
+    end)
+
+    it('filters cancel', function()
+      cron.tagged('hello', 'girl').every(5, count) -- D
+
+      cron.tagged('hello').update(5) -- A + B + D - C
+      assert_equal(counter, 3)
+
+      cron.tagged('girl').cancel()
+      cron.tagged('hello').update(5) -- A + B - C
+      assert_equal(counter, 4)
+
+      cron.tagged('girl').update(5) -- nothing (D is cancelled)
+      assert_equal(counter, 4)
+    end)
+  end)
 end)
