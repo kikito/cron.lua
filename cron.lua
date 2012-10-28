@@ -46,7 +46,7 @@ local function updateTimedEntry(self, dt) -- returns true if expired
   self.running = self.running + dt
   if self.running >= self.time then
     self.callback(unpack(self.args))
-    return true
+    entries[self] = nil
   end
 end
 
@@ -84,9 +84,7 @@ end
 function cron.update(dt)
   assert(type(dt) == "number" and dt >= 0, "dt must be a non-negative number")
 
-  for id, entry in pairs(entries) do
-    if entry:update(dt) then entries[id] = nil end
-  end
+  for _, entry in pairs(entries) do entry:update(dt) end
 end
 
 return cron
