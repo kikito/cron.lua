@@ -37,6 +37,7 @@ cron.reset() -- stops all the current actions, both timed ones and periodical on
 </pre>
 
 Some tag examples:
+
 <pre>
   -- This has the same effect of cron.after(2, showMenu), except that the
   -- time entry is tagged with the tags 'main-menu' and 'menu'
