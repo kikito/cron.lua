@@ -136,6 +136,10 @@ describe( 'cron', function()
       cron.every(1, count)                 -- C
     end)
 
+    it('requires at least one tag', function()
+      assert_error(cron.tagged)
+    end)
+
     it('filters update', function()
       cron.tagged('hello').update(5)
       assert_equal(counter, 2)  -- A + B, but not C
@@ -153,6 +157,10 @@ describe( 'cron', function()
 
       cron.tagged('girl').update(5) -- nothing (D is cancelled)
       assert_equal(counter, 4)
+    end)
+
+    it('caches scopes', function()
+      assert_equal(cron.tagged('hello', 'world'), cron.tagged('hello', 'world'))
     end)
   end)
 end)

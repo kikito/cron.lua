@@ -13,7 +13,7 @@
 
 -- Private functions
 
-local entries, tagGroups -- initialized in cron.reset
+local entries, taggedEntries, scopeCacheRoot -- initialized in cron.reset
 local cron = {}
 
 local function isCallable(callback)
@@ -70,7 +70,7 @@ local function addTags(...)
   return tags, len
 end
 
-local function registerEntry(scope, entry)
+local function scopedEntry(scope, entry)
   for i=1, scope.len do
     taggedEntries[scope.tags[i]][entry] = entry
   end
@@ -78,7 +78,7 @@ local function registerEntry(scope, entry)
   return entry
 end
 
-function tagged_update(scope, dt)
+local function scopedUpdate(scope, dt)
   for i=1, scope.len do
     for _,entry in pairs(taggedEntries[scope.tags[i]]) do
       entry:update(dt)
@@ -86,7 +86,7 @@ function tagged_update(scope, dt)
   end
 end
 
-function tagged_cancel(scope)
+local function scopedCancel(scope)
   for i=1, scope.len do
     local tag = scope.tags[i]
     for _,entry in pairs(taggedEntries[tag]) do
@@ -96,14 +96,37 @@ function tagged_cancel(scope)
   end
 end
 
+local function getScopeFromCache(tags, len)
+  local node = scopeCacheRoot
+  for i=1, len do
+    node = node.children[tags[i]]
+    if not node then return nil end
+  end
+  return node.scope
+end
+
+local function storeScopeInCache(scope)
+  local node = scopeCacheRoot
+  for i=1, scope.len do
+    local tag = scope.tags[i]
+    node.children[tag] = node.children[tag] or { children={} }
+    node = node.children[tag]
+  end
+  node.scope = scope
+end
+
 local function newTaggedScope(tags, len)
-  local scope = { tags = tags, len = len }
+  local scope = getScopeFromCache(tags, len)
+  if not scope then
+    scope = { tags = tags, len = len }
 
-  scope.after  = function(...) return registerEntry(scope, cron.after(...)) end
-  scope.every  = function(...) return registerEntry(scope, cron.every(...)) end
-  scope.update = function(dt) tagged_update(scope, dt) end
-  scope.cancel = function(dt) tagged_cancel(scope) end
+    scope.after  = function(...) return scopedEntry(scope, cron.after(...)) end
+    scope.every  = function(...) return scopedEntry(scope, cron.every(...)) end
+    scope.update = function(dt) scopedUpdate(scope, dt) end
+    scope.cancel = function(dt) scopedCancel(scope) end
 
+    storeScopeInCache(scope)
+  end
   return scope
 end
 
@@ -134,13 +157,15 @@ function cron.update(dt)
   for _, entry in pairs(entries) do entry:update(dt) end
 end
 
-function cron.tagged(...)
-  return newTaggedScope(addTags(...))
+function cron.tagged(first, ...)
+  assert(first ~= nil, "cron.tagged requires at least one tag")
+  return newTaggedScope(addTags(first, ...))
 end
 
 function cron.reset()
   entries = {}
   taggedEntries = setmetatable({}, {__mode='k'})
+  scopeCacheRoot = { children = {}}
 end
 
 -- tagged functions
