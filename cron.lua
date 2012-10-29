@@ -109,7 +109,7 @@ local function storeScopeInCache(scope)
   local node = scopeCacheRoot
   for i=1, scope.len do
     local tag = scope.tags[i]
-    node.children[tag] = node.children[tag] or { children={} }
+    node.children[tag] = node.children[tag] or { children=setmetatable({},{__mode='k'}) }
     node = node.children[tag]
   end
   node.scope = scope
@@ -165,7 +165,7 @@ end
 function cron.reset()
   entries = {}
   taggedEntries = setmetatable({}, {__mode='k'})
-  scopeCacheRoot = { children = {}}
+  scopeCacheRoot = { children = setmetatable({}, {__mode='k'}) }
 end
 
 -- tagged functions

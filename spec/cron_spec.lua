@@ -159,8 +159,5 @@ describe( 'cron', function()
       assert_equal(counter, 4)
     end)
 
-    it('caches scopes', function()
-      assert_equal(cron.tagged('hello', 'world'), cron.tagged('hello', 'world'))
-    end)
   end)
 end)
