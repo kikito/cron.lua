@@ -26,32 +26,47 @@ Examples
     cron.after(5, printMessage)
     cron.after(5, print, 'Hello')
 
-    cron.update(5) -- will print 'Hello' twice
+    cron.update(5) -- will print 'Hello' twice (once per each cron.after)
 
     -- this will print the message periodically:
     local id = cron.every(10, printMessage)
 
-    cron.update(5) -- nothing
-    cron.update(4) -- nothing
-    cron.update(12) -- prints 'Hello' twice
+    cron.update(5) -- nothing (total time: 5)
+    cron.update(4) -- nothing (total time: 9)
+    cron.update(12) -- prints 'Hello' twice (total time is now 21)
 
     cron.cancel(id) -- stops the execution the element defined by id. Works with periodical or one-time actions.
 
     cron.reset() -- stops all the current actions, both timed ones and periodical ones.
 
-Some tag examples:
+Examples using tags:
 
     -- This has the same effect of cron.after(2, showMenu), except that the
     -- time entry is tagged with the tags 'main-menu' and 'menu'
-    cron.tagged('main-menu', 'menu').after(2, showMenu)
+    cron.tagged('main-menu', 'menu').every(2, showMenu)
+
+    -- after also has a tagged version:
+    cron.tagged('menu').after(10, doSomething)
 
     -- This updates the time entries tagged with the tag 'menu', but not the rest
     cron.tagged('menu').update(2)
 
-    -- cron.cancel does not admit filtering via tags, but it admits tags as params
-    -- the previous call is equivalent to this one:
-    cron.tagged('main-menu').cancel()
+    -- cron.update updates all the time entries, no matter how they are tagged:
+    cron.update(2) -- updates everything
 
+    -- the tagged version of cron.cancel does not take params:
+    cron.tagged('main-menu').cancel() -- cancels any entry tagged 'main-menu'
+
+    -- A very nice thing: You are not restrited to using strings for tags. Any Lua
+    -- object (including tables) can be used. This way, you can link time entries
+    -- to specific instances.
+
+    local player = ... -- some table representing the player
+
+    cron.tagged(player, 'movement').after(10, startBoredAnimation)
+    ...
+    cron.tagged(player).cancel() -- cancel all time entries tagged with the player
+    cron.tagged(player, 'movement') -- cancell the player entries related with movement only
 
 Gotchas / Warnings
 ==================
