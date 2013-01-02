@@ -1,6 +1,8 @@
 cron.lua
 ========
 
+[![Build Status](https://travis-ci.org/kikito/cron.lua.png?branch=master)](https://travis-ci.org/kikito/cron.lua)
+
 `cron.lua` are a set of functions for executing actions at a certain time interval.
 
 API
