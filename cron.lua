@@ -60,6 +60,15 @@ local function updatePeriodicEntry(self, dt)
   end
 end
 
+local function updateLimitedEntry(self, dt)
+  self.running = self.running + dt
+
+  self.callback(unpack(self.args))
+  if self.running >= self.time then
+    cron.cancel(self)
+  end
+end
+
 local function addTags(...)
   local tags = {...}
   local len  = #tags
@@ -151,6 +160,11 @@ function cron.every(time, callback, ...)
   return newEntry(time, callback, updatePeriodicEntry, ...)
 end
 
+function cron.doFor(time, callback, ...)
+  checkTimeAndCallback(time, callback)
+  return newEntry(time, callback, updateLimitedEntry, ...)
+end
+
 function cron.update(dt)
   assert(type(dt) == "number" and dt >= 0, "dt must be a non-negative number")
 
@@ -174,4 +188,3 @@ end
 cron.reset()
 
 return cron
-
