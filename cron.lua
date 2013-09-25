@@ -86,6 +86,14 @@ local function updateEveryClock(self, dt)
   return false
 end
 
+function Clock:reset(running)
+  running = running or 0
+  checkPositiveInteger('running', running)
+
+  self.running = running
+end
+
+
 function cron.after(time, callback, ...)
   return newClock(time, callback, updateAfterClock, ...)
 end

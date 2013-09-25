@@ -25,8 +25,8 @@ Increases the internal timer in the clock by `dt`.
 
 `expired` will be true for one-time clocks whose time has passed, so their function has been invoked.
 
-`local expired = clock:setTime(time)`
-Changes the internal time manually. It never invokes `callback`. Returns whether the clock is expired.
+`clock:reset([running])`
+Changes the internal timer manually to `running`, or to 0 if nothing is specified. It never invokes `callback`.
 
 
 Examples
@@ -42,7 +42,15 @@ Examples
     local c1 = cron.after(5, printMessage)
     local c2 = cron.after(5, print, 'Hello')
 
+    c1:update(2) -- will print nothing, the action is not done yet
     c1:update(5) -- will print 'Hello' once
+
+    c1:reset() -- reset the counter to 0
+
+    -- prints 'hey' 5 times and then prints 'hello'
+    while not c1:update(1) do
+      print('hey')
+    end
 
     -- Create a periodical clock:
     local c3 = cron.every(10, printMessage)
