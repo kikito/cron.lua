@@ -22,8 +22,7 @@ Increases the internal timer in the clock by `dt`.
 
 * On one-time clocks, if the internal timer surpasses the clock's `time`, then the clock's `callback` is invoked.
 * On periodic clocks, the `callback` is executed 0 or more times, depending on how big `dt` is and the clock's internal timer.
-
-`expired` will be true for one-time clocks whose time has passed, so their function has been invoked.
+* `expired` will be true for one-time clocks whose time has passed, so their function has been invoked.
 
 `clock:reset([running])`
 Changes the internal timer manually to `running`, or to 0 if nothing is specified. It never invokes `callback`.
