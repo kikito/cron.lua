@@ -91,8 +91,9 @@ Also, make sure to read the license file; the text of that license file must app
 Specs
 =====
 
-This project uses "telescope":https://github.com/norman/telescope for its specs. If you want to run the specs, you will have to install telescope first. Then run:
+This project uses [busted](https://olivinelabs.com/busted) for its specs. If you want to run the specs, you will have to install it first. Then run:
 
-    tsc spec/*
+    cd path/where/the/spec/folder/is
+    busted
 
 
