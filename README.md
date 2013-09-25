@@ -13,7 +13,6 @@ API
 * `cron.cancel(id)` will stop a timed action from happening, and will interrupt the periodical execution of a periodic action.
 * `cron.reset()` removes all timed and periodic actions, and resets the time passed back to 0.
 * `cron.update(dt)` is needed to be executed on the main program loop. `dt` is the amount of time that has passed since the last iteration. When `cron.update` is executed, cron will check the list of pending actions and execute them if needed.
-* `cron.tagged(tag1, tag2, tag3 ...)` filters other cron methods (`cron.after`, `cron.every`, `cron.update` & `cron.cancel` but not `cron.reset`) so that they create clocks with specific tags/ act on clocks with specific tags.
 
 Examples
 ========
@@ -40,35 +39,6 @@ Examples
     cron.cancel(id) -- stops the execution the element defined by id. Works with periodical or one-time actions.
 
     cron.reset() -- stops all the current actions, both timed ones and periodical ones.
-
-Examples using tags:
-
-    -- This has the same effect of cron.after(2, showMenu), except that the
-    -- time entry is tagged with the tags 'main-menu' and 'menu'
-    cron.tagged('main-menu', 'menu').every(2, showMenu)
-
-    -- after also has a tagged version:
-    cron.tagged('menu').after(10, doSomething)
-
-    -- This updates the time entries tagged with the tag 'menu', but not the rest
-    cron.tagged('menu').update(2)
-
-    -- cron.update updates all the time entries, no matter how they are tagged:
-    cron.update(2) -- updates everything
-
-    -- the tagged version of cron.cancel does not take params:
-    cron.tagged('main-menu').cancel() -- cancels any entry tagged 'main-menu'
-
-    -- A very nice thing: You are not restrited to using strings for tags. Any Lua
-    -- object (including tables) can be used. This way, you can link time entries
-    -- to specific instances.
-
-    local player = ... -- some table representing the player
-
-    cron.tagged(player, 'movement').after(10, startBoredAnimation)
-    ...
-    cron.tagged(player).cancel() -- cancel all time entries tagged with the player
-    cron.tagged(player, 'movement') -- cancell the player entries related with movement only
 
 Gotchas / Warnings
 ==================

@@ -129,35 +129,4 @@ describe( 'cron', function()
     end)
   end)
 
-  describe('.tagged', function()
-    before_each(function()
-      cron.tagged('hello').every(5, count) -- A
-      cron.tagged('hello').after(2, count) -- B
-      cron.every(1, count)                 -- C
-    end)
-
-    it('requires at least one tag', function()
-      assert.error(cron.tagged)
-    end)
-
-    it('filters update', function()
-      cron.tagged('hello').update(5)
-      assert.equal(counter, 2)  -- A + B, but not C
-    end)
-
-    it('filters cancel', function()
-      cron.tagged('hello', 'girl').every(5, count) -- D
-
-      cron.tagged('hello').update(5) -- A + B + D - C
-      assert.equal(counter, 3)
-
-      cron.tagged('girl').cancel()
-      cron.tagged('hello').update(5) -- A + B - C
-      assert.equal(counter, 4)
-
-      cron.tagged('girl').update(5) -- nothing (D is cancelled)
-      assert.equal(counter, 4)
-    end)
-
-  end)
 end)
