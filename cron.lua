@@ -28,8 +28,6 @@ local cron = {
 
 -- Private functions
 
-local entries --  initialized in cron.reset
-
 local function isCallable(callback)
   local tc = type(callback)
   if tc == 'function' then return true end
@@ -40,67 +38,61 @@ local function isCallable(callback)
   return false
 end
 
-local function checkTimeAndCallback(time, callback)
-  assert(type(time) == "number" and time > 0, "time must be a positive number")
-  assert(isCallable(callback), "callback must be a function")
-end
-
-local function newEntry(time, callback, update, ...)
-  local entry = {
-    time = time,
-    callback = callback,
-    args = {...},
-    running = 0,
-    update = update
-  }
-  entries[entry] = entry
-  return entry
-end
-
-local function updateTimedEntry(self, dt) -- returns true if expired
-  self.running = self.running + dt
-  if self.running >= self.time then
-    self.callback(unpack(self.args))
-    cron.cancel(self)
+local function checkPositiveInteger(name, value)
+  if type(value) ~= "number" or value < 0 then
+    error(name .. " must be a positive number")
   end
 end
 
-local function updatePeriodicEntry(self, dt)
+local Clock = {}
+local Clock_mt = {__index = Clock}
+
+local function newClock(time, callback, update, ...)
+  checkPositiveInteger('time', time)
+  assert(isCallable(callback), "callback must be a function")
+
+  return setmetatable({
+    time     = time,
+    callback = callback,
+    args     = {...},
+    running  = 0,
+    update   = update
+  }, Clock_mt)
+end
+
+local function updateAfterClock(self, dt) -- returns true if expired
+  checkPositiveInteger('dt', dt)
+
+  if self.running >= self.time then return true end
+
+  self.running = self.running + dt
+
+  if self.running >= self.time then
+    self.callback(unpack(self.args))
+    return true
+  end
+  return false
+end
+
+local function updateEveryClock(self, dt)
+  checkPositiveInteger('dt', dt)
+
   self.running = self.running + dt
 
   while self.running >= self.time do
     self.callback(unpack(self.args))
     self.running = self.running - self.time
   end
-end
-
--- Public functions
-
-function cron.cancel(id)
-  entries[id] = nil
+  return false
 end
 
 function cron.after(time, callback, ...)
-  checkTimeAndCallback(time, callback)
-  return newEntry(time, callback, updateTimedEntry, ...)
+  return newClock(time, callback, updateAfterClock, ...)
 end
 
 function cron.every(time, callback, ...)
-  checkTimeAndCallback(time, callback)
-  return newEntry(time, callback, updatePeriodicEntry, ...)
+  return newClock(time, callback, updateEveryClock, ...)
 end
-
-function cron.update(dt)
-  assert(type(dt) == "number" and dt >= 0, "dt must be a non-negative number")
-
-  for _, entry in pairs(entries) do entry:update(dt) end
-end
-
-function cron.reset()
-  entries = {}
-end
-
-cron.reset()
 
 return cron
 

@@ -2,7 +2,7 @@ local cron = require 'cron'
 
 describe( 'cron', function()
 
-  local counter = 0
+  local counter
   local function count(amount)
     amount = amount or 1
     counter = counter + amount
@@ -11,41 +11,25 @@ describe( 'cron', function()
 
   before_each(function()
     counter = 0
-    cron.reset()
   end)
 
-  describe('.update', function()
-    it('throws an error if dt is a negative number', function()
-      assert.error(function() cron.update() end)
-      assert.error(function() cron.update(-1) end)
-      assert.not_error(function() cron.update(1) end)
-    end)
-  end)
 
-  describe('.reset', function()
-    it('Cancels all timed actions', function()
-      cron.after(1, count)
-      cron.after(2, count)
-      cron.update(1)
-      assert.equal(counter, 1)
-      cron.reset()
-      cron.update(1)
-      assert.equal(counter, 1)
-    end)
+  describe('clock', function()
 
-    it('Cancels all periodical actions', function()
-      cron.every(1, count)
-      cron.update(1)
-      assert.equal(counter, 1)
-      cron.reset()
-      cron.update(1)
-      assert.equal(counter, 1)
+    describe(':update', function()
+      it('throws an error if dt is a negative number', function()
+        local clock = cron.every(1, count)
+        assert.error(function() clock:update() end)
+        assert.error(function() clock:update(-1) end)
+        assert.not_error(function() clock:update(1) end)
+      end)
     end)
 
   end)
+
 
   describe('.after', function()
-    it('Throws error if time is not a positive number, or callback is not callable', function()
+    it('checks parameters', function()
       assert.error(function() cron.after('error', count) end)
       assert.error(function() cron.after(2, 'error') end)
       assert.error(function() cron.after(-2, count) end)
@@ -54,28 +38,45 @@ describe( 'cron', function()
       assert.not_error(function() cron.after(2, countable) end)
     end)
 
-    it('Executes timed actions only once, at the right time', function()
-      cron.after(2, count)
-      cron.after(4, count)
-      cron.update(1)
+    it('produces a clock that executes actions only once, at the right time', function()
+      local c1 = cron.after(2, count)
+      local c2 = cron.after(4, count)
+
+      -- 1
+      c1:update(1)
       assert.equal(counter, 0)
-      cron.update(1)
+      c2:update(1)
+      assert.equal(counter, 0)
+
+      -- 2
+      c1:update(1)
       assert.equal(counter, 1)
-      cron.update(1)
+      c2:update(1)
       assert.equal(counter, 1)
-      cron.update(1)
+
+      -- 3
+      c1:update(1)
+      assert.equal(counter, 1)
+      c2:update(1)
+      assert.equal(counter, 1)
+
+      -- 4
+      c1:update(1)
+      assert.equal(counter, 1)
+      c2:update(1)
       assert.equal(counter, 2)
+
     end)
 
-    it('Passes on parameters to the function, if specified', function()
-      cron.after(1, count, 2)
-      cron.update(1)
+    it('Passes on parameters to the callback', function()
+      local c1 = cron.after(1, count, 2)
+      c1:update(1)
       assert.equal(counter, 2)
     end)
   end)
 
   describe('.every', function()
-    it('Throws errors if time is not a positive number, or callback is not function', function()
+    it('checks parameters', function()
       assert.error(function() cron.every('error', count) end)
       assert.error(function() cron.every(2, 'error') end)
       assert.error(function() cron.every(-2, count) end)
@@ -84,48 +85,32 @@ describe( 'cron', function()
       assert.not_error(function() cron.every(2, countable) end)
     end)
 
-    it('Executes periodical actions periodically', function()
-      cron.every(3, count)
-      cron.update(1)
+    it('Invokes callback periodically', function()
+      local c = cron.every(3, count)
+
+      c:update(1)
       assert.equal(counter, 0)
-      cron.update(2)
+
+      c:update(2)
       assert.equal(counter, 1)
-      cron.update(2)
+
+      c:update(2)
       assert.equal(counter, 1)
-      cron.update(1)
+
+      c:update(1)
       assert.equal(counter, 2)
     end)
 
     it('Executes the same action multiple times on a single update if appropiate', function()
-      cron.every(1, count)
-      cron.update(2)
+      local c = cron.every(1, count)
+      c:update(2)
       assert.equal(counter, 2)
     end)
 
     it('Respects parameters', function()
-      cron.every(1, count, 2)
-      cron.update(2)
+      local c = cron.every(1, count, 2)
+      c:update(2)
       assert.equal(counter, 4)
-    end)
-  end)
-
-  describe('.cancel', function()
-    it('Cancels timed entries', function()
-      local id = cron.after(1, count)
-      cron.update(1)
-      assert.equal(counter, 1)
-      cron.cancel(id)
-      cron.update(1)
-      assert.equal(counter, 1)
-    end)
-
-    it('Cancels periodical entries', function()
-      local id = cron.every(1, count)
-      cron.update(1)
-      assert.equal(counter, 1)
-      cron.cancel(id)
-      cron.update(1)
-      assert.equal(counter, 1)
     end)
   end)
 
