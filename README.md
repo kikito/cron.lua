@@ -8,11 +8,26 @@ cron.lua
 API
 ===
 
-* `cron.after(time, callback)` will execute callback after the given amount of time units. Returns an identifier (`id`)
-* `cron.every(time, callback)` will repeat the same action periodically. Returns an identifier (`id`)
-* `cron.cancel(id)` will stop a timed action from happening, and will interrupt the periodical execution of a periodic action.
-* `cron.reset()` removes all timed and periodic actions, and resets the time passed back to 0.
-* `cron.update(dt)` is needed to be executed on the main program loop. `dt` is the amount of time that has passed since the last iteration. When `cron.update` is executed, cron will check the list of pending actions and execute them if needed.
+`local clock = cron.after(time, callback, ...)`.
+Creates a clock that will execute `callback` after `time` passes. If additional params were provided, they are passed to `callback`.
+
+`local clock = cron.every(time, callback, ...)`.
+Creates a clock that will execute `callback` every `time`, periodically. Additional parameters are passed to the `callback` too.
+
+
+Clock methods:
+
+`local expired = clock:update(dt)`.
+Increases the internal timer in the clock by `dt`.
+
+* On one-time clocks, if the internal timer surpasses the clock's `time`, then the clock's `callback` is invoked.
+* On periodic clocks, the `callback` is executed 0 or more times, depending on how big `dt` is and the clock's internal timer.
+
+`expired` will be true for one-time clocks whose time has passed, so their function has been invoked.
+
+`local expired = clock:setTime(time)`
+Changes the internal time manually. It never invokes `callback`. Returns whether the clock is expired.
+
 
 Examples
 ========
@@ -24,21 +39,17 @@ Examples
     end
 
     -- the following calls are equivalent:
-    cron.after(5, printMessage)
-    cron.after(5, print, 'Hello')
+    local c1 = cron.after(5, printMessage)
+    local c2 = cron.after(5, print, 'Hello')
 
-    cron.update(5) -- will print 'Hello' twice (once per each cron.after)
+    c1:update(5) -- will print 'Hello' once
 
-    -- this will print the message periodically:
-    local id = cron.every(10, printMessage)
+    -- Create a periodical clock:
+    local c3 = cron.every(10, printMessage)
 
-    cron.update(5) -- nothing (total time: 5)
-    cron.update(4) -- nothing (total time: 9)
-    cron.update(12) -- prints 'Hello' twice (total time is now 21)
-
-    cron.cancel(id) -- stops the execution the element defined by id. Works with periodical or one-time actions.
-
-    cron.reset() -- stops all the current actions, both timed ones and periodical ones.
+    c3:update(5) -- nothing (total time: 5)
+    c3:update(4) -- nothing (total time: 9)
+    c3:update(12) -- prints 'Hello' twice (total time is now 21)
 
 Gotchas / Warnings
 ==================
