@@ -31,32 +31,34 @@ Changes the internal timer manually to `running`, or to 0 if nothing is specifie
 Examples
 ========
 
-    local cron = require 'cron'
+```lua
+local cron = require 'cron'
 
-    local function printMessage()
-      print('Hello')
-    end
+local function printMessage()
+  print('Hello')
+end
 
-    -- the following calls are equivalent:
-    local c1 = cron.after(5, printMessage)
-    local c2 = cron.after(5, print, 'Hello')
+-- the following calls are equivalent:
+local c1 = cron.after(5, printMessage)
+local c2 = cron.after(5, print, 'Hello')
 
-    c1:update(2) -- will print nothing, the action is not done yet
-    c1:update(5) -- will print 'Hello' once
+c1:update(2) -- will print nothing, the action is not done yet
+c1:update(5) -- will print 'Hello' once
 
-    c1:reset() -- reset the counter to 0
+c1:reset() -- reset the counter to 0
 
-    -- prints 'hey' 5 times and then prints 'hello'
-    while not c1:update(1) do
-      print('hey')
-    end
+-- prints 'hey' 5 times and then prints 'hello'
+while not c1:update(1) do
+  print('hey')
+end
 
-    -- Create a periodical clock:
-    local c3 = cron.every(10, printMessage)
+-- Create a periodical clock:
+local c3 = cron.every(10, printMessage)
 
-    c3:update(5) -- nothing (total time: 5)
-    c3:update(4) -- nothing (total time: 9)
-    c3:update(12) -- prints 'Hello' twice (total time is now 21)
+c3:update(5) -- nothing (total time: 5)
+c3:update(4) -- nothing (total time: 9)
+c3:update(12) -- prints 'Hello' twice (total time is now 21)
+```
 
 Gotchas / Warnings
 ==================
@@ -72,7 +74,9 @@ Just copy the cron.lua file somewhere in your projects (maybe inside a /lib/ fol
 
 Remember to store the value returned by require somewhere! (I suggest a local variable named `cron`)
 
-    local cron = require 'cron'
+```lua
+local cron = require 'cron'
+```
 
 Also, make sure to read the license file; the text of that license file must appear somewhere in your projects' files.
 
@@ -81,7 +85,9 @@ Specs
 
 This project uses [busted](https://olivinelabs.com/busted) for its specs. If you want to run the specs, you will have to install it first. Then run:
 
-    cd path/where/the/spec/folder/is
-    busted
+```bash
+cd path/where/the/spec/folder/is
+busted
+```
 
 
