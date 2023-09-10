@@ -68,7 +68,7 @@ local function updateAfterClock(self, dt) -- returns true if expired
   self.running = self.running + dt
 
   if self.running >= self.time then
-    self.callback(unpack(self.args))
+    self.callback(table.unpack(self.args))
     return true
   end
   return false
@@ -80,7 +80,7 @@ local function updateEveryClock(self, dt)
   self.running = self.running + dt
 
   while self.running >= self.time do
-    self.callback(unpack(self.args))
+    self.callback(table.unpack(self.args))
     self.running = self.running - self.time
   end
   return false
